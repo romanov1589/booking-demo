@@ -12,7 +12,7 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<HotelBooking, Long> {
     /**
      * method that find bookings with price less than added. We don't need to implement
-     * this method. JPArepository do it automaticallt
+     * this method. JPA repository do it automatically
      * @param price price that user input
      * @return bookings with price less than
      */
