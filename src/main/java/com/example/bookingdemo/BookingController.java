@@ -1,8 +1,8 @@
 package com.example.bookingdemo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,14 +12,15 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value="/bookings")
 public class BookingController {
-    private List<HotelBooking> bookings;
+    private BookingRepository bookingRepository;
 
-    public BookingController() {
-        this.bookings = new ArrayList<>();
-        bookings.add(new HotelBooking("Mariott", 200.5, 3));
-        bookings.add(new HotelBooking("Ibis", 90.5, 4));
-        bookings.add(new HotelBooking("Novotel", 150.2, 2));
-
+    /**
+     * Dependency injection
+     * @param bookingRepository
+     */
+    @Autowired
+    public BookingController(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
     }
 
     /**
@@ -28,7 +29,7 @@ public class BookingController {
      */
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     public List<HotelBooking> getALL(){
-        return this.bookings;
+        return this.bookingRepository.findAll();
     }
 
     /**
@@ -37,11 +38,16 @@ public class BookingController {
      */
     @RequestMapping(value="/affordable/{price}", method=RequestMethod.GET)
     public List<HotelBooking> getAffordable(@PathVariable double price) {
-        return this.bookings.stream().filter(x -> x.getPricePerNight() <= price).collect(Collectors.toList());
+        return this.bookingRepository.findByPricePerNightLessThan(price);
     }
     @RequestMapping(value="/create", method=RequestMethod.POST)
     public List<HotelBooking> create(@RequestBody HotelBooking booking) {
-        this.bookings.add(booking);
-        return this.bookings;
+        bookingRepository.save(booking);
+        return bookingRepository.findAll();
+    }
+    @RequestMapping(value="/delete/{id}", method = RequestMethod.GET)
+    public List<HotelBooking> remove(@PathVariable long id){
+        this.bookingRepository.delete(id);
+        return this.bookingRepository.findAll();
     }
 }
